@@ -1,0 +1,94 @@
+/* DWORDLE v9 - embedded lists + debounced keys; dark mode */
+:root{
+  --bg:#000; --panel:#111214; --tile:#1c1f24; --text:#fff; --muted:#a7b0ba;
+  --correct:#22a559; --present:#c2a81e; --absent:#2a2f35;
+  --key-bg:#818384; --key-text:#000; --key-bg-absent:#3a3a3c;
+  --accent:#ff2b2b; --orange:#ff8c1a; --blue:#3399ff;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+#app{min-height:100%;display:flex;flex-direction:column;align-items:center}
+
+.topbar{position:sticky;top:0;z-index:10;width:100%;max-width:520px;display:flex;justify-content:center;align-items:center;padding:10px 12px;background:#0b0d10;border-bottom:1px solid #1f252b}
+.title{letter-spacing:2px;font-weight:800}
+.timer{position:absolute;right:12px;top:10px;font-family:Consolas,monospace;color:var(--accent);font-weight:800}
+
+main{flex:1;width:100%;display:flex;justify-content:center}
+.game,.gate{width:100%;max-width:520px;padding:12px}
+
+.gate{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:10vh;background:var(--panel);border:1px solid #1f252b;border-radius:12px;padding:24px}
+.gate input{width:100%;padding:12px;border-radius:8px;border:1px solid #2a2f35;background:#000;color:var(--text)}
+.gate button{padding:10px 16px;border-radius:8px;background:#27303a;color:var(--text);border:1px solid #2a333a;cursor:pointer}
+.change-player{display:inline-block;margin-top:8px;font-size:12px;color:#9dc1ff;cursor:pointer;text-decoration:underline}
+
+.hidden{display:none}
+
+.board{display:grid;grid-template-rows:repeat(6,1fr);gap:8px;margin:10px auto 16px auto;width:min(92vw, 380px)}
+.row{display:grid;grid-template-columns:repeat(5, 1fr) 56px;gap:6px;align-items:center}
+.cell{background:var(--tile);border:2px solid #2a2f35;border-radius:6px;width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:800;text-transform:uppercase}
+.rowtime{font-family:Consolas,monospace;color:var(--accent);font-size:0.85rem;text-align:center}
+.cell.reveal{transition:transform .2s ease, background .2s ease;border-color:transparent;transform:scale(1.02)}
+.cell.correct{background:var(--correct);color:#0b0d10}
+.cell.present{background:var(--present);color:#0b0d10}
+.cell.absent{background:var(--absent);color:#88919a}
+
+/* Wordle-like keyboard */
+.keyboard{display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;margin:8px 0 12px 0;position:relative;z-index:20}
+.krow{display:flex;gap:6px}
+.key{
+  appearance:none;border:none;outline:none;
+  background:var(--key-bg);color:var(--key-text);
+  padding:14px 10px;border-radius:6px;min-width:28px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;text-transform:uppercase;cursor:pointer;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation;
+  -webkit-tap-highlight-color: rgba(255,255,255,0);
+  box-shadow:0 1px 0 rgba(0,0,0,.2);
+  position:relative;z-index:30;
+}
+.key.wide{padding:14px 14px;min-width:56px}
+.key.icon{font-size:18px}
+.key.correct{background:#6aaa64;color:#fff}
+.key.present{background:#c9b458;color:#fff}
+.key.absent{background:var(--key-bg-absent);color:#d7dadc}
+
+footer{width:100%;max-width:520px;padding:12px;color:var(--muted);font-size:12px;text-align:center;z-index:1;position:relative}
+
+body.colorblind{--correct:var(--orange);--present:var(--blue)}
+
+/* Modal + Toast */
+.modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.6); z-index:100; }
+.modal.active{ display:flex; }
+.modal .card{ width:min(92vw,520px); background:#121418; border:1px solid #222a; border-radius:12px; padding:16px; }
+.modal h2{ margin:4px 0 8px 0; }
+.modal p{ margin:8px 0; color:#cfd6de; }
+.modal a.button{ display:inline-block; padding:10px 14px; border-radius:8px; background:#27303a; color:#fff; border:1px solid #2a333a; text-decoration:none; font-weight:700; }
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#222a;color:#fff;border:1px solid #39414a;padding:10px 14px;border-radius:8px;z-index:200;font-weight:700;opacity:0;transition:opacity .2s}
+.toast.show{opacity:1}
+
+.copyWrap{width:100%;max-width:520px;padding:0 12px 12px;display:flex;justify-content:center}
+.copy{height:44px;border-radius:8px;border:1px solid #2a2f35;background:#1b1e23;color:#fff;padding:0 14px;font-weight:700;cursor:pointer}
+.copy:active{transform:translateY(1px)}
+
+/* Bottom-centered copy button dock */
+.copyDock{
+  position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%);
+  width: min(92vw, 430px); display:flex; justify-content:center; z-index: 500;
+  pointer-events: none; /* let button get events but avoid blocking UI */
+}
+.copyDock .copy{
+  pointer-events: auto;
+  height: 44px; border-radius: 8px; border: 1px solid #2a2f35;
+  background: #1b1e23; color: #fff; padding: 0 14px; font-weight: 700;
+}
+
+/* Mobile baseline width: center main column and prevent side scroll */
+body { overflow-x: hidden; }
+main, #game, #gameArea { width: 100%; max-width: 430px; margin: 0 auto; }
+@media (max-width: 360px){
+  /* allow shrink but keep layout stable */
+  .board { width: 94vw; }
+}
+
+/* Ensure page content isn't hidden behind the dock */
+body { padding-bottom: 72px; }

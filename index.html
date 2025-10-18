@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <title>DWORDLE</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="title">DWORDLE</div>
+      <div class="timer" id="globalTimer">00:00</div>
+    </header>
+
+    <main>
+      <div id="nameGate" class="gate">
+        <h1>DWORDLE</h1>
+        <p>Enter your name to start today's puzzle.</p>
+        <input id="playerName" type="text" maxlength="20" placeholder="Your name" autofocus />
+        <button id="startBtn" type="button">Enter</button>
+        <a href="#" id="changePlayer" class="change-player">Change Player</a>
+</div>
+
+      <div id="lockoutPanel" class="gate hidden">
+        <h1>DWORDLE</h1>
+        <p style="font-size:1.1rem;">patience grasshopper</p>
+        <p>Next puzzle unlocks at midnight (Australia/Brisbane).</p>
+        <div id="countdown" style="font-family:Consolas,monospace;font-size:1.6rem;color:#ff2b2b;">00:00:00</div>
+        <a href="#" id="lockoutChange" class="change-player">Change Player</a>
+      </div>
+
+      <div id="gameArea" class="game hidden">
+        <div id="board" class="board"></div>
+        <div id="keyboard" class="keyboard"></div>
+        <div id="leaderboards" class="leaderboards">
+          <div class="lb">
+            <h3>Today's Leaderboard</h3>
+            <ol id="dailyLB"></ol>
+          </div>
+          <div class="lb admin hidden" id="adminLBWrap">
+            <button id="clearTodayBtn" type="button" style="margin-bottom:8px;padding:8px 12px;border-radius:8px;background:#3a2b2b;color:#fff;border:1px solid #5a3b3b;cursor:pointer;">Clear Today's Leaderboard</button>
+            <h3>Admin Leaderboard (Daily Winners)</h3>
+            <ol id="adminLB"></ol>
+          </div>
+        </div>
+      </div>
+    
+    
+</main>
+
+    <footer>
+      <span>Dark mode only • Local & offline • Brisbane time</span>
+    </footer>
+  </div>
+
+  <template id="rowTemplate">
+    <div class="row">
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      <div class="rowtime">00:00</div>
+    </div>
+  </template>
+
+  <!-- Result modal -->
+  <div class="modal" id="resultModal">
+    <div class="card">
+      <h2>Answer: <span id="resultWord">WORD</span></h2>
+      <p id="resultSummary">Loading short definition…</p>
+      <p><a class="button" id="resultGoogle" href="#" target="_blank" rel="noopener noreferrer">Open Google definition</a></p>
+      <p><a href="#" id="resultClose" class="button">Close</a></p>
+    </div>
+  </div>
+
+  <!-- Toast for validation -->
+  <div id="toast" class="toast"></div>
+
+  <script src="script.js"></script>
+
+  <div class="copyDock"><button id="copyBtn" class="copy" type="button">Copy Grid & Times</button></div>
+</body>
+</html>
